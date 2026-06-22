@@ -5,12 +5,12 @@ import {
   getTopicDistribution,
   getStreakHeatmap,
   getContestPerformance,
-} from "../controllers/dashboard.controller.js";
-import { authMiddleware } from "../middlewares/auth-middleware.js"; // adjust export name if different
+} from "../controllers/dashboard-controller.js";
+import { protect } from "../middlewares/auth-middleware.js";
 
 const router = Router();
 
-router.use(authMiddleware); // every dashboard route requires a logged-in user
+router.use(protect); // every dashboard route requires a logged-in user
 
 router.get("/overview", getOverview); // GET /api/dashboard/overview
 router.get("/rating-graph", getRatingGraph); // GET /api/dashboard/rating-graph

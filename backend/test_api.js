@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_URL = "http://localhost:3000/api/auth";
+const API_URL = "http://localhost:5000/api/auth";
 
 // Store cookies for authenticated requests
 let cookies = "";
@@ -75,8 +75,8 @@ const runTests = async () => {
         await new Promise(r => setTimeout(r, 3000));
 
         // 4. Get User Profile
-        console.log("4. Testing GET /me...");
-        let res = await axios.get(`${API_URL}/me`, getHeaders());
+        console.log("4. Testing GET /profile...");
+        let res = await axios.get(`${API_URL}/profile`, getHeaders());
         console.log(`✅ Get Profile successful! Status: ${res.status}`);
         console.log(`Profile synced handle: ${res.data.user.profileData?.handle || "No Data"}`);
         console.log(`Rating: ${res.data.user.profileData?.rating || "N/A"}\n`);

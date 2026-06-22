@@ -27,7 +27,7 @@ const profileWorker = new Worker(
     },
 
     {
-        connection: redisConnection,
+        connection: redisConnection.duplicate(),
         concurrency: 3
     }
 );

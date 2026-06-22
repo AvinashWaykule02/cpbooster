@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
-import { User } from "../models/User.js";
-import { ContestParticipation } from "../models/ContestParticipation.js";
-import { UserProblem } from "../models/UserProblem.js";
+import User from "../models/user.js";
+import PastContest from "../models/past-contest.js";
+import { UserProblem } from "../models/userproblem.js";
 
 /**
  * ============================================================
@@ -20,7 +20,7 @@ import { UserProblem } from "../models/UserProblem.js";
 export const getOverviewService = async (userId) => {
   const [user, contests, solvedProblems] = await Promise.all([
     User.findById(userId).select("currentRating maxRating currentStreak").lean(),
-    ContestParticipation.countDocuments({ user: userId }),
+    PastContest.countDocuments({ userId: userId }),
     UserProblem.countDocuments({ user: userId, completed: true }),
   ]);
 
@@ -57,22 +57,22 @@ export const getOverviewService = async (userId) => {
 export const getRatingGraphService = async (userId) => {
   const uid = new mongoose.Types.ObjectId(userId);
 
-  const data = await ContestParticipation.aggregate([
-    { $match: { user: uid } },
+  const data = await PastContest.aggregate([
+    { $match: { userId: uid } },
     {
       $lookup: {
-        from: "contests", // Mongoose's default collection name for model "Contest"
-        localField: "contest",
-        foreignField: "_id",
+        from: "contests", 
+        localField: "contestId",
+        foreignField: "contestId",
         as: "contestInfo",
       },
     },
     { $unwind: "$contestInfo" },
-    { $sort: { "contestInfo.date": 1 } },
+    { $sort: { "contestInfo.startTime": 1 } },
     {
       $project: {
         _id: 0,
-        contestName: "$contestInfo.name",
+        contestName: "$contestName",
         rating: "$newRating",
       },
     },
@@ -177,8 +177,8 @@ export const getStreakHeatmapService = async (userId, days = 365) => {
 export const getContestPerformanceService = async (userId) => {
   const uid = new mongoose.Types.ObjectId(userId);
 
-  const [result] = await ContestParticipation.aggregate([
-    { $match: { user: uid } },
+  const [result] = await PastContest.aggregate([
+    { $match: { userId: uid } },
     {
       $group: {
         _id: null,

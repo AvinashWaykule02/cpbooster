@@ -23,7 +23,7 @@ const userSchema = new mongoose.Schema(
 
     role: {
       type: String,
-      enum: ["user", "admin"],
+      enum: ["user", "admin", "banned"],
       default: "user",
       index: true, 
     },
@@ -34,6 +34,26 @@ const userSchema = new mongoose.Schema(
       unique: true, // important for CP platforms
       trim: true,
       index: true, // fast lookup for CF API sync
+    },
+
+    currentRating: {
+      type: Number,
+      default: 0,
+    },
+
+    maxRating: {
+      type: Number,
+      default: 0,
+    },
+
+    currentStreak: {
+      type: Number,
+      default: 0,
+    },
+
+    refreshToken: {
+      type: String,
+      default: null,
     },
   },
   {

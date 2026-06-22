@@ -4,7 +4,7 @@ import {
   getTopicDistributionService,
   getStreakHeatmapService,
   getContestPerformanceService,
-} from "../services/dashboard.service.js";
+} from "../services/dashboard-service.js";
 
 // GET /api/dashboard/overview
 export const getOverview = async (req, res) => {
