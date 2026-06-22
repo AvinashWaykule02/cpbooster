@@ -47,8 +47,8 @@ const TEST_USER = {
 // We need to import the real models so Mongoose knows about them
 // (required for aggregation $lookup to work on the correct collections)
 import User from "./models/user.js";
-import { Contest } from "./models/contest.js";
-import { ContestParticipation } from "./models/contestparticipation.js";
+import Contest from "./models/contest.js";
+import PastContest from "./models/past-contest.js";
 
 // ── UserProblem model ───────────────────────────────────────
 // This model may not exist yet in the project. We define it here
@@ -124,29 +124,29 @@ const seedTestData = async (userId) => {
 
   // ── 2. Create 5 Contests ──────────────────────────────────
   const contestData = [
-    { name: "Codeforces Round #800 (Div. 2)", platform: "Codeforces", date: new Date("2024-01-15"), durationMinutes: 120 },
-    { name: "Codeforces Round #810 (Div. 2)", platform: "Codeforces", date: new Date("2024-03-10"), durationMinutes: 135 },
-    { name: "Educational CF Round 160",       platform: "Codeforces", date: new Date("2024-05-20"), durationMinutes: 120 },
-    { name: "Codeforces Round #850 (Div. 1)", platform: "Codeforces", date: new Date("2024-08-05"), durationMinutes: 150 },
-    { name: "Codeforces Round #900 (Div. 2)", platform: "Codeforces", date: new Date("2024-11-22"), durationMinutes: 120 },
+    { contestId: 800, name: "Codeforces Round #800 (Div. 2)", startTime: new Date("2024-01-15"), duration: 120, status: "FINISHED" },
+    { contestId: 810, name: "Codeforces Round #810 (Div. 2)", startTime: new Date("2024-03-10"), duration: 135, status: "FINISHED" },
+    { contestId: 160, name: "Educational CF Round 160",       startTime: new Date("2024-05-20"), duration: 120, status: "FINISHED" },
+    { contestId: 850, name: "Codeforces Round #850 (Div. 1)", startTime: new Date("2024-08-05"), duration: 150, status: "FINISHED" },
+    { contestId: 900, name: "Codeforces Round #900 (Div. 2)", startTime: new Date("2024-11-22"), duration: 120, status: "FINISHED" },
   ];
 
   const contests = await Contest.insertMany(contestData);
   contests.forEach((c) => seededContestIds.push(c._id));
   console.log(`  ✅ Created ${contests.length} contests`);
 
-  // ── 3. Create ContestParticipation for each contest ────────
+  // ── 3. Create PastContest for each contest ────────
   const participationData = [
-    { user: userId, contest: contests[0]._id, rank: 1200, oldRating: 1400, newRating: 1450, ratingChange: 50 },
-    { user: userId, contest: contests[1]._id, rank: 800,  oldRating: 1450, newRating: 1530, ratingChange: 80 },
-    { user: userId, contest: contests[2]._id, rank: 2500, oldRating: 1530, newRating: 1490, ratingChange: -40 },
-    { user: userId, contest: contests[3]._id, rank: 450,  oldRating: 1490, newRating: 1587, ratingChange: 97 },
-    { user: userId, contest: contests[4]._id, rank: 950,  oldRating: 1587, newRating: 1610, ratingChange: 23 },
+    { userId: userId, handle: TEST_USER.codeforcesHandle, contestId: 800, contestName: "Codeforces Round #800", rank: 1200, oldRating: 1400, newRating: 1450, ratingChange: 50 },
+    { userId: userId, handle: TEST_USER.codeforcesHandle, contestId: 810, contestName: "Codeforces Round #810", rank: 800,  oldRating: 1450, newRating: 1530, ratingChange: 80 },
+    { userId: userId, handle: TEST_USER.codeforcesHandle, contestId: 160, contestName: "Educational CF Round 160", rank: 2500, oldRating: 1530, newRating: 1490, ratingChange: -40 },
+    { userId: userId, handle: TEST_USER.codeforcesHandle, contestId: 850, contestName: "Codeforces Round #850", rank: 450,  oldRating: 1490, newRating: 1587, ratingChange: 97 },
+    { userId: userId, handle: TEST_USER.codeforcesHandle, contestId: 900, contestName: "Codeforces Round #900", rank: 950,  oldRating: 1587, newRating: 1610, ratingChange: 23 },
   ];
 
-  const participations = await ContestParticipation.insertMany(participationData);
+  const participations = await PastContest.insertMany(participationData);
   participations.forEach((p) => seededParticipationIds.push(p._id));
-  console.log(`  ✅ Created ${participations.length} contest participations`);
+  console.log(`  ✅ Created ${participations.length} past contest records`);
 
   // ── 4. Create DailyProblems (topics for distribution chart) ─
   const topicsData = [
@@ -213,8 +213,8 @@ const cleanup = async () => {
     }
 
     if (seededParticipationIds.length) {
-      await ContestParticipation.deleteMany({ _id: { $in: seededParticipationIds } });
-      console.log(`  ✅ Deleted ${seededParticipationIds.length} ContestParticipation records`);
+      await PastContest.deleteMany({ _id: { $in: seededParticipationIds } });
+      console.log(`  ✅ Deleted ${seededParticipationIds.length} PastContest records`);
     }
 
     if (seededContestIds.length) {
