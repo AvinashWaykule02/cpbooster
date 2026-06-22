@@ -1,19 +1,28 @@
 import mongoose from "mongoose";
 
-const contestSchema = new mongoose.Schema(
-  {
-    name: { type: String, required: true, trim: true },
-    platform: { type: String, default: "Codeforces", trim: true },
+const contestSchema = new mongoose.Schema({
+    contestId: { type: Number, unique: true },
 
-    // contest start time — what the rating graph sorts on
-    date: { type: Date, required: true },
+    name: String,
+    link: String,
+    startTime: Date,
+    duration: Number, 
 
-    durationMinutes: Number,
-  },
-  { timestamps: true }
-);
+    status: {
+        type: String,
+        enum: ["BEFORE",  "FINISHED"],
+        default: "BEFORE"
+    },
 
-// rating graph and any "list contests chronologically" query benefit from this
-contestSchema.index({ date: -1 });
+    isReminderSent : {
+        type: Boolean,
+        default: false
+    }
+}, { timestamps: true });
+// Indexing for performance
+contestSchema.index({ startTime: 1 });
+contestSchema.index({ status: 1 });
 
-export const Contest = mongoose.model("Contest", contestSchema);
+
+const Contest = mongoose.model("Contest", contestSchema);
+export default Contest;
